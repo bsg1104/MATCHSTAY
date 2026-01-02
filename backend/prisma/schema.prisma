@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  profile   Profile?
+  listings  Listing[]
+  createdAt DateTime @default(now())
+}
+
+model Profile {
+  id                  Int     @id @default(autoincrement())
+  user                User    @relation(fields: [userId], references: [id])
+  userId              Int     @unique
+  school              String?
+  internshipCompany   String?
+  internshipCity      String?
+  internshipStart     DateTime?
+  internshipEnd       DateTime?
+  budgetMin           Int?
+  budgetMax           Int?
+  cleanliness         Int?    // 1-5
+  sleepSchedule       String? // early/late
+  pets                Boolean?
+  quietLevel          Int?    // 1-5
+}
+
+model Listing {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  city         String
+  lat          Float?
+  lng          Float?
+  price        Int
+  availableFrom DateTime
+  availableTo   DateTime
+  roomType     String
+  maxRoommates Int
+  owner        User     @relation(fields: [ownerId], references: [id])
+  ownerId      Int
+}
+
+model ConnectionRequest {
+  id         Int      @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     String   // pending/accepted/declined
+  createdAt  DateTime @default(now())
+}
+
+// Indexes for search
+
+@@index([city])
